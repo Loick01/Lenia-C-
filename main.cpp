@@ -59,6 +59,8 @@ int main(){
 		}
 		
 		g->draw(renderer);
-		SDL_Delay(1./FPS);
+		//SDL_Delay(1./FPS);
+		SDL_Delay(300);
+		g->update();
 	}
 }
