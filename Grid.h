@@ -2,11 +2,23 @@
 #define GRID_H
 
 #include <vector>
+#include <cmath>
 
 struct Cellule{
 	float value; // Entre 0.0 et 1.0
 	int indice; // Donne la position dans la grille
 };
+
+float gaussienneChooseValue(float somme){ // Détermine la nouvelle valeur d'une cellule (selon une gaussienne, on peut faire varier les paramètres nu et sigma)
+	// Quand somme varie de 0 à 8, res varie doit varier de 0 à 1
+	short mu = 0.15;
+	short sigma = 0.015;
+	float res = exp(-(pow(somme-mu,2) / 2 * pow(sigma,2))); // Quelque chose ne vas pas dans le calcul des nouvelles valeurs des cellules
+	//std::cout << "Dans fonction  : " << res << "\n";
+	return -1 + 2 * res;
+}
+
+// On pourrait utiliser plein d'autres courbes pour déterminer les nouvelles valeurs des cellules
 
 class Grid {
 private:
@@ -30,6 +42,15 @@ public:
 			int numLigne = i / this->nColonne; // Numéro de la ligne sur laquelle se trouve la cellule
 			int numColonne = i % this->nColonne;// Numéro de la colonne sur laquelle se trouve la cellule
 			c.value = (1./(this->nLigne - 1) * numLigne) / 2 + (1./(this->nColonne - 1) * numColonne) / 2;
+			g->at(i) = c;
+		}
+	}
+	
+	void fillRandomGrid(std::vector<Cellule>* g){
+		for (unsigned int i = 0 ; i < g->size() ; i++){
+			Cellule c;
+			c.indice = i;
+			c.value = (rand() % 100) / 100.;  ; // Valeur aléatoire pour les cellules
 			g->at(i) = c;
 		}
 	}
@@ -63,7 +84,8 @@ public:
 		
 		// Remplir la grille de cellule selon une certaine fonction
 		//fillSimpleGrid(g);
-		fillGridWithCircle(g,25,50,20);
+		fillRandomGrid(g);
+		//fillGridWithCircle(g,25,50,20);
 		
 		return g;
 	}
@@ -85,8 +107,8 @@ public:
 		SDL_RenderPresent(renderer);
     }
     
-    void update(){
-    	std::vector<Cellule> *nextGrid= new std::vector<Cellule>(this->nLigne * this->nColonne);
+     std::vector<Cellule>* newStep(){
+    	std::vector<Cellule> *nextGrid = new std::vector<Cellule>(this->nLigne * this->nColonne);
     	
     	// Utiliser la grille courante pour calculer la grille suivante (plus tard il faudra fonctionner par interpolation linéaire)
     	for (int i = 0 ; i < this->grille->size() ; i++){
@@ -104,16 +126,11 @@ public:
     		}
     		Cellule c;
     		c.indice = i;
-    		// Temporaire, c'est juste pour faire une animation sympa
-    		if (somme / 10 > 0.2){
-    			c.value = somme / 10;
-    		}else{
-    			c.value = 1.0 - somme / 10;
-    		}
+    		c.value = gaussienneChooseValue(somme);
     		nextGrid->at(i) = c;
     	}
     	
-    	this->grille = nextGrid; // Faire le changement de grille
+    	return nextGrid;
     }
     
 };
