@@ -3,7 +3,7 @@
 #include "SDL2/SDL.h"
 #include "Grid.h"
 
-#define FPS 15
+#define FPS 30 // 1 seconde entre 2 étapes d'évolution (donc 30 frames)
 
 SDL_Window* createWindow(const char* window_name, const int nColonne, const int nLigne, const int dimCellule){
 	if(SDL_Init(SDL_INIT_VIDEO /*| SDL_INIT_AUDIO*/) < 0)
@@ -62,26 +62,18 @@ int main(){
 		}
 		
 		g->draw(renderer);
-		//SDL_Delay(1./FPS);
-		SDL_Delay(50);
+		SDL_Delay(1./FPS); // 30 Images par secondes
 		if (compteur == 0){ 
-			/*nextGrid = */g->newStep();
-			/*
+			nextGrid = g->newStep();
 			for (int i = 0 ; i < nextGrid->size() ; i++){
-				std::cout << nextGrid->at(i).value << "\n";
+				listePasDesCellules.push_back(nextGrid->at(i).value / FPS);// On détermine pour chaque cellule le pas entre 2 états. ATTENTION : 1 seconde entre 2 étapes d'évolution
 			}
-			*/
-			
-			// Ici, construire la liste des pas grâce à :
-			// (valeurSouhaité - valeurCourante) / FPS 
-			// ATTENTION : Ne pas oublier de borner les valeurs entre -1 et 1
-			
 		}else if(compteur == (FPS + 1)){
 			compteur = -1;
-		}/*else{
-			g->update(listePasDesCellules); // Passe la grille à l'état de la frame suivante (ajoute à la valeur de chaque cellule le pas qui lui corresponds)
+			listePasDesCellules.clear();
+		}else{
+			g->update(listePasDesCellules); // Passe les états des cellules à l'état suivant (ajoute à la valeur de chaque cellule le pas)
 		}
-		*/
 		compteur++;
 		
 	}

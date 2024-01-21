@@ -4,16 +4,18 @@
 #include <vector>
 #include <cmath>
 
+#define nbCelluleFiltre 81
+
 struct Cellule{
 	float value; // Entre 0.0 et 1.0
 	int indice; // Donne la position dans la grille
 };
 
 float gaussienneChooseValue(float somme){ // Détermine la nouvelle valeur d'une cellule (selon une gaussienne, on peut faire varier les paramètres nu et sigma)
-	// Quand somme varie de 0 à 8, res varie doit varier de 0 à 1
+	// Quand somme varie de 0 à nbCelluleFiltre, res varie doit varier de 0 à 1
 	float mu = 0.25;
 	float sigma = 0.025;
-	float val = somme / 8; // Diviser par 8 pour avoir une valeur entre 0 et 1 (somme des valeurs des 8 cellules adjacentes entre 0 et 8)
+	float val = somme / nbCelluleFiltre; // Diviser par nbCelluleFiltre pour avoir une valeur entre 0 et 1 (somme des valeurs des nbCelluleFiltre cellules voisine entre 0 et nbCelluleFiltre)
 	float res = exp(-((pow(val-mu,2))/(2 * pow(sigma,2))));
 	return res;
 }
@@ -84,8 +86,8 @@ public:
 		
 		// Remplir la grille de cellule selon une certaine fonction
 		//fillSimpleGrid(g);
-		fillRandomGrid(g);
-		//fillGridWithCircle(g,25,50,20);
+		//fillRandomGrid(g);
+		fillGridWithCircle(g,25,50,20);
 		
 		return g;
 	}
@@ -98,7 +100,7 @@ public:
 		// Dessiner tous les rectangles sur le renderer
 		for (int i = 0 ; i < this->grille->size() ; i++){
 			float value = this->grille->at(i).value;
-			SDL_SetRenderDrawColor(renderer, value * 174, value * 255, 0, 255); // Pour l'instant une seule couleur (jaune)
+			SDL_SetRenderDrawColor(renderer, value * 10, value * 155, value * 255, 255); 
 			SDL_Rect rectangle = { (i % this->nColonne) * this->dimCellule, (i / this->nColonne) * dimCellule, this->dimCellule, this->dimCellule };
 			SDL_RenderFillRect(renderer, &rectangle);	
 		}
@@ -107,17 +109,17 @@ public:
 		SDL_RenderPresent(renderer);
     }
     
-     void /*std::vector<Cellule>* */ newStep(){
+     std::vector<Cellule>* newStep(){
     	std::vector<Cellule> *nextGrid = new std::vector<Cellule>(this->nLigne * this->nColonne);
     	
     	// Utiliser la grille courante pour calculer la grille suivante (plus tard il faudra fonctionner par interpolation linéaire)
     	for (int i = 0 ; i < this->grille->size() ; i++){
     		int numLigne = i / this->nColonne; // Numéro de la ligne sur laquelle se trouve la cellule
 			int numColonne = i % this->nColonne;// Numéro de la colonne sur laquelle se trouve la cellule
-			float somme = 0.0; // Somme des valeurs des 8 cellules adjacentes
-    		for (int l = -1 ; l < 2 ; l++){ // Pour l'instant on regarde les 8 cellules adjacentes (faire plus tard avec de filtres)
-    			for (int c = -1 ; c < 2 ; c++){
-    				if (l != 1 && c != 1){ // Ne pas considérer la cellule courante
+			float somme = 0.0; // Somme des valeurs des nbCelluleFiltre cellules voisine
+    		for (int l = -4 ; l <= 4 ; l++){
+    			for (int c = -4 ; c <= 4 ; c++){
+    				if (l != 0 || c != 0){ // Ne pas considérer la cellule courante
     					if (numLigne + l >= 0 && numLigne + l < this->nLigne && numColonne + c >= 0 && numColonne + c < this->nColonne){ // On vérifie si on ne sort pas de la grille
     						somme += this->grille->at((numLigne + l) * this->nColonne + numColonne + c).value;
     					}
@@ -130,8 +132,16 @@ public:
     		nextGrid->at(i) = c;
     	}
     	
-    	this->grille = nextGrid;
-    	//return nextGrid;
+    	return nextGrid;
+    }
+    
+    void update(std::vector<float> listePas){
+    	for (int i = 0 ; i < listePas.size() ; i++){
+    		float newValue = this->grille->at(i).value + listePas[i];
+    		if (newValue >= 0. && newValue <= 1.){ // Attention à bien borner les valeurs des cellules entre 0 et 1 
+    			this->grille->at(i).value = newValue;
+    		}
+    	}
     }
     
 };
