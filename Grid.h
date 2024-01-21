@@ -11,11 +11,11 @@ struct Cellule{
 
 float gaussienneChooseValue(float somme){ // Détermine la nouvelle valeur d'une cellule (selon une gaussienne, on peut faire varier les paramètres nu et sigma)
 	// Quand somme varie de 0 à 8, res varie doit varier de 0 à 1
-	short mu = 0.15;
-	short sigma = 0.015;
-	float res = exp(-(pow(somme-mu,2) / 2 * pow(sigma,2))); // Quelque chose ne vas pas dans le calcul des nouvelles valeurs des cellules
-	//std::cout << "Dans fonction  : " << res << "\n";
-	return -1 + 2 * res;
+	float mu = 0.25;
+	float sigma = 0.025;
+	float val = somme / 8; // Diviser par 8 pour avoir une valeur entre 0 et 1 (somme des valeurs des 8 cellules adjacentes entre 0 et 8)
+	float res = exp(-((pow(val-mu,2))/(2 * pow(sigma,2))));
+	return res;
 }
 
 // On pourrait utiliser plein d'autres courbes pour déterminer les nouvelles valeurs des cellules
@@ -107,7 +107,7 @@ public:
 		SDL_RenderPresent(renderer);
     }
     
-     std::vector<Cellule>* newStep(){
+     void /*std::vector<Cellule>* */ newStep(){
     	std::vector<Cellule> *nextGrid = new std::vector<Cellule>(this->nLigne * this->nColonne);
     	
     	// Utiliser la grille courante pour calculer la grille suivante (plus tard il faudra fonctionner par interpolation linéaire)
@@ -130,7 +130,8 @@ public:
     		nextGrid->at(i) = c;
     	}
     	
-    	return nextGrid;
+    	this->grille = nextGrid;
+    	//return nextGrid;
     }
     
 };

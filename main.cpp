@@ -3,7 +3,7 @@
 #include "SDL2/SDL.h"
 #include "Grid.h"
 
-#define FPS 30
+#define FPS 15
 
 SDL_Window* createWindow(const char* window_name, const int nColonne, const int nLigne, const int dimCellule){
 	if(SDL_Init(SDL_INIT_VIDEO /*| SDL_INIT_AUDIO*/) < 0)
@@ -48,7 +48,7 @@ int main(){
     SDL_Event event;
     std::vector<Cellule> *nextGrid; // Sert à conserver les nouveaux états souhaités pour les cellules
     std::vector<float> listePasDesCellules;
-    int compteur = 0;
+    int compteur = 1;
 	while(keep_open)
 	{
 		while(SDL_PollEvent(&event) > 0)
@@ -63,26 +63,26 @@ int main(){
 		
 		g->draw(renderer);
 		//SDL_Delay(1./FPS);
-		SDL_Delay(1000);
-		if (compteur <= 0){
-			nextGrid = g->newStep();
-			
+		SDL_Delay(50);
+		if (compteur == 0){ 
+			/*nextGrid = */g->newStep();
+			/*
 			for (int i = 0 ; i < nextGrid->size() ; i++){
 				std::cout << nextGrid->at(i).value << "\n";
 			}
-			
+			*/
 			
 			// Ici, construire la liste des pas grâce à :
 			// (valeurSouhaité - valeurCourante) / FPS 
 			// ATTENTION : Ne pas oublier de borner les valeurs entre -1 et 1
 			
-		}else if(compteur == FPS + 1){
-			compteur == 1;
+		}else if(compteur == (FPS + 1)){
+			compteur = -1;
 		}/*else{
 			g->update(listePasDesCellules); // Passe la grille à l'état de la frame suivante (ajoute à la valeur de chaque cellule le pas qui lui corresponds)
 		}
 		*/
-		++compteur;
+		compteur++;
 		
 	}
 }
