@@ -13,8 +13,8 @@ struct Cellule{
 
 float gaussienneChooseValue(float somme){ // Détermine la nouvelle valeur d'une cellule (selon une gaussienne, on peut faire varier les paramètres nu et sigma)
 	// Quand somme varie de 0 à nbCelluleFiltre, res varie doit varier de 0 à 1
-	float mu = 0.25;
-	float sigma = 0.025;
+	float mu = 0.15;
+	float sigma = 0.015;
 	float val = somme / nbCelluleFiltre; // Diviser par nbCelluleFiltre pour avoir une valeur entre 0 et 1 (somme des valeurs des nbCelluleFiltre cellules voisine entre 0 et nbCelluleFiltre)
 	float res = exp(-((pow(val-mu,2))/(2 * pow(sigma,2))));
 	return res;
