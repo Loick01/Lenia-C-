@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 
-#define nbCelluleFiltre 81
+#define nbCelluleFiltre 8
 
 struct Cellule{
 	float value; // Entre 0.0 et 1.0
@@ -93,7 +93,8 @@ public:
 	}
 
     void draw(SDL_Renderer* renderer){
-		// Effacer le renderer
+		// Effacer le renderer (met la couleur de fond en blanc)
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
 		SDL_RenderClear(renderer);
     
 
@@ -116,9 +117,9 @@ public:
     	for (int i = 0 ; i < this->grille->size() ; i++){
     		int numLigne = i / this->nColonne; // Numéro de la ligne sur laquelle se trouve la cellule
 			int numColonne = i % this->nColonne;// Numéro de la colonne sur laquelle se trouve la cellule
-			float somme = 0.0; // Somme des valeurs des nbCelluleFiltre cellules voisine
-    		for (int l = -4 ; l <= 4 ; l++){
-    			for (int c = -4 ; c <= 4 ; c++){
+			float somme = 0.0; // Somme des valeurs des nbCelluleFiltre cellules voisines
+    		for (int l = -1 ; l <= 1 ; l++){
+    			for (int c = -1 ; c <= 1 ; c++){
     				if (l != 0 || c != 0){ // Ne pas considérer la cellule courante
     					if (numLigne + l >= 0 && numLigne + l < this->nLigne && numColonne + c >= 0 && numColonne + c < this->nColonne){ // On vérifie si on ne sort pas de la grille
     						somme += this->grille->at((numLigne + l) * this->nColonne + numColonne + c).value;
