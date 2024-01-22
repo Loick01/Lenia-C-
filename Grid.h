@@ -86,18 +86,13 @@ public:
 		
 		// Remplir la grille de cellule selon une certaine fonction
 		//fillSimpleGrid(g);
-		//fillRandomGrid(g);
-		fillGridWithCircle(g,25,50,20);
+		fillRandomGrid(g);
+		//fillGridWithCircle(g,25,50,20);
 		
 		return g;
 	}
 
     void draw(SDL_Renderer* renderer){
-		// Effacer le renderer (met la couleur de fond en blanc)
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
-		SDL_RenderClear(renderer);
-    
-
 		// Dessiner tous les rectangles sur le renderer
 		for (int i = 0 ; i < this->grille->size() ; i++){
 			float value = this->grille->at(i).value;
@@ -105,9 +100,6 @@ public:
 			SDL_Rect rectangle = { (i % this->nColonne) * this->dimCellule, (i / this->nColonne) * dimCellule, this->dimCellule, this->dimCellule };
 			SDL_RenderFillRect(renderer, &rectangle);	
 		}
-
-		// Met à jour le renderer
-		SDL_RenderPresent(renderer);
     }
     
      std::vector<Cellule>* newStep(){

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "SDL2/SDL.h"
 #include "Grid.h"
+#include "BlockButton.h"
 
 #define FPS 30 // Nombre de frame entre 2 étapes d'évolution (ATTENTION : Ce n'est pas le nombre de frame par secondes, sauf si SECONDE_ENTRE_EVOLUTION = 1)
 
@@ -37,7 +38,6 @@ int main(){
 	const short nLigne = 56;
 	const short nColonne = 100;
 	const short dimCellule = std::min(AREA_WIDTH / nColonne, AREA_HEIGHT / nLigne); // On définit au mieux la dimension des cellules
-	std::cout << "Dimension des cellules = " << dimCellule << "\n";
 	
     SDL_Window *window = createWindow("Lenia Simulation");
     Grid *g = new Grid(nColonne, nLigne, dimCellule);
@@ -56,9 +56,18 @@ int main(){
     
     bool keep_open = true;
     SDL_Event event;
+    
+    
+    short nbLigne = 4; // Nombre de lignes de case
+    short nbColonne = 2; // Nombre de colonnes de case
+    BlockButton *buttons = new BlockButton(AREA_WIDTH, 0, nbLigne, nbColonne, (WINDOW_WIDTH - AREA_WIDTH) / nbColonne, AREA_HEIGHT / nbLigne , 3); // 4 lignes, 2 colonnes
+    
     std::vector<Cellule> *nextGrid; // Sert à conserver les nouveaux états souhaités pour les cellules
     std::vector<float> listePasDesCellules;
     int compteur = 1;
+    
+    int* xClick = new int; // Pour les coordonnées de la souris, il faut des pointeurs 
+	int* yClick = new int;
 	while(keep_open)
 	{
 		while(SDL_PollEvent(&event) > 0)
@@ -67,11 +76,24 @@ int main(){
 		    {
 		        case SDL_QUIT:
 		            keep_open = false;
+		            
 		            break;
+		        case SDL_MOUSEBUTTONDOWN:
+		        	SDL_GetMouseState(xClick,yClick);
+		        	if (buttons->isClicked(*xClick,*yClick)){
+		        		//std::cout << "Clic sur la zone des cases\n";
+		        		int indCase = buttons->getIndCase(*xClick,*yClick);	
+		        		std::cout << "Indice = "<< indCase << "\n";
+		        	}
 		    }
 		}
 		
+		// Effacer le renderer (met la couleur de fond en blanc)
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
+		SDL_RenderClear(renderer);
 		g->draw(renderer);
+		buttons->draw(renderer); // Dessine les cases à droite de la zone des cellules
+		
 		SDL_Delay((1./FPS) * (SECONDE_ENTRE_EVOLUTION * 1000)); // Valeur en milliseconde
 		if (compteur == 0){ 
 			nextGrid = g->newStep();
@@ -86,5 +108,14 @@ int main(){
 		}
 		compteur++;
 		
+		// Met à jour le renderer
+		SDL_RenderPresent(renderer);
 	}
+	
+	delete xClick;
+	delete yClick;
 }
+
+
+
+
