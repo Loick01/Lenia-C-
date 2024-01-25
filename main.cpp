@@ -16,6 +16,14 @@
 #define AREA_WIDTH 1400 // Dimensions de la zone pour les cellules
 #define AREA_HEIGHT 787
 
+void pause(EnvData e){ // Je fait pas de vérification si c'est déjà en pause ou non
+	*(e.isPaused) = true;
+}
+
+void play(EnvData e){ // Je fait pas de vérification si c'est déjà en lecture ou non
+	*(e.isPaused) = false;
+}
+
 SDL_Window* createWindow(const char* window_name){
 	if(SDL_Init(SDL_INIT_VIDEO /*| SDL_INIT_AUDIO*/) < 0)
     {
@@ -61,6 +69,17 @@ int main(){
     short nbLigne = 4; // Nombre de lignes de case
     short nbColonne = 2; // Nombre de colonnes de case
     BlockButton *buttons = new BlockButton(AREA_WIDTH, 0, nbLigne, nbColonne, (WINDOW_WIDTH - AREA_WIDTH) / nbColonne, AREA_HEIGHT / nbLigne , 3); // 4 lignes, 2 colonnes
+	buttons->addFunction(pause); // Pour l'instant il faut ajouter les fonctions à la main
+	// Je n'arrive pas encore à ajouter les fonctions provennant de l'objet g (fillSimpleGrid, fillRandomGrid et fillGridWithCircle). On verra ça plus tard
+	buttons->addFunction(play);
+	buttons->addFunction(pause);
+	buttons->addFunction(play);
+	buttons->addFunction(pause);
+	buttons->addFunction(play);
+	buttons->addFunction(pause);
+	buttons->addFunction(play);
+
+
     
     std::vector<Cellule> *nextGrid; // Sert à conserver les nouveaux états souhaités pour les cellules
     std::vector<float> listePasDesCellules;
@@ -68,6 +87,16 @@ int main(){
     
     int* xClick = new int; // Pour les coordonnées de la souris, il faut des pointeurs 
 	int* yClick = new int;
+
+	bool* isPaused = new bool;
+	*isPaused = false;
+
+	EnvData e;
+	e.isPaused = isPaused;
+	e.g = g->getGrille();
+
+	g->initialiserGrille(e);
+
 	while(keep_open)
 	{
 		while(SDL_PollEvent(&event) > 0)
@@ -81,39 +110,44 @@ int main(){
 		        case SDL_MOUSEBUTTONDOWN:
 		        	SDL_GetMouseState(xClick,yClick);
 		        	if (buttons->isClicked(*xClick,*yClick)){
-		        		//std::cout << "Clic sur la zone des cases\n";
 		        		int indCase = buttons->getIndCase(*xClick,*yClick);	
 		        		std::cout << "Indice = "<< indCase << "\n";
+						buttons->execute(indCase,e); // Exécute la fonction dans le tableau de fonction de BlockButton, à l'indice indCase
 		        	}
 		    }
 		}
+
+		std::cout << "Marche 1\n";
 		
-		// Effacer le renderer (met la couleur de fond en blanc)
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
-		SDL_RenderClear(renderer);
-		g->draw(renderer);
-		buttons->draw(renderer); // Dessine les cases à droite de la zone des cellules
-		
-		SDL_Delay((1./FPS) * (SECONDE_ENTRE_EVOLUTION * 1000)); // Valeur en milliseconde
-		if (compteur == 0){ 
-			nextGrid = g->newStep();
-			for (int i = 0 ; i < nextGrid->size() ; i++){
-				listePasDesCellules.push_back(nextGrid->at(i).value / FPS);// On détermine pour chaque cellule le pas entre 2 états.
+		if (!(*isPaused)){
+			// Effacer le renderer (met la couleur de fond en blanc)
+			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); 
+			SDL_RenderClear(renderer);
+			g->draw(renderer);
+			buttons->draw(renderer); // Dessine les cases à droite de la zone des cellules
+			
+			SDL_Delay((1./FPS) * (SECONDE_ENTRE_EVOLUTION * 1000)); // Valeur en milliseconde
+			if (compteur == 0){ 
+				nextGrid = g->newStep();
+				for (int i = 0 ; i < nextGrid->size() ; i++){
+					listePasDesCellules.push_back(nextGrid->at(i).value / FPS);// On détermine pour chaque cellule le pas entre 2 états.
+				}
+			}else if(compteur == (FPS + 1)){
+				compteur = -1;
+				listePasDesCellules.clear();
+			}else{
+				g->update(listePasDesCellules); // Passe les états des cellules à l'état suivant (ajoute à la valeur de chaque cellule le pas)
 			}
-		}else if(compteur == (FPS + 1)){
-			compteur = -1;
-			listePasDesCellules.clear();
-		}else{
-			g->update(listePasDesCellules); // Passe les états des cellules à l'état suivant (ajoute à la valeur de chaque cellule le pas)
+			compteur++;
+			
+			// Met à jour le renderer
+			SDL_RenderPresent(renderer);
 		}
-		compteur++;
-		
-		// Met à jour le renderer
-		SDL_RenderPresent(renderer);
 	}
 	
 	delete xClick;
 	delete yClick;
+	delete isPaused;
 }
 
 

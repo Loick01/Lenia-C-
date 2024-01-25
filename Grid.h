@@ -3,13 +3,9 @@
 
 #include <vector>
 #include <cmath>
+#include "T.h"
 
 #define nbCelluleFiltre 8
-
-struct Cellule{
-	float value; // Entre 0.0 et 1.0
-	int indice; // Donne la position dans la grille
-};
 
 float gaussienneChooseValue(float somme){ // Détermine la nouvelle valeur d'une cellule (selon une gaussienne, on peut faire varier les paramètres nu et sigma)
 	// Quand somme varie de 0 à nbCelluleFiltre, res varie doit varier de 0 à 1
@@ -34,10 +30,15 @@ public:
     	this->nLigne = nLigne;
 		this->nColonne = nColonne;
 		this->dimCellule = dimCellule;
-		this->grille = initialiserGrille();
     }
+
+	std::vector<Cellule>* getGrille(){
+		return this->grille;
+	}
     
-    void fillSimpleGrid(std::vector<Cellule>* g){ // Remplit la grille linéairement
+    void fillSimpleGrid(EnvData e){ // Remplit la grille linéairement
+		std::vector<Cellule>* g = e.g; // Récupère les données nécessaire dans l'objet EnvData
+
 		for (unsigned int i = 0 ; i < g->size() ; i++){
 			Cellule c;
 			c.indice = i;
@@ -48,7 +49,9 @@ public:
 		}
 	}
 	
-	void fillRandomGrid(std::vector<Cellule>* g){
+	void fillRandomGrid(EnvData e){
+		std::vector<Cellule>* g = e.g; // Récupère les données nécessaire dans l'objet EnvData
+
 		for (unsigned int i = 0 ; i < g->size() ; i++){
 			Cellule c;
 			c.indice = i;
@@ -57,7 +60,18 @@ public:
 		}
 	}
 	
-	void fillGridWithCircle(std::vector<Cellule>* g, int horizontalCenter, int verticalCenter, int rayon){ // Remplit la grille avec un cercle (centre + rayon). Le rayon est un nombre de cellule
+	void fillGridWithCircle(EnvData e){ // Remplit la grille avec un cercle (centre + rayon). Le rayon est un nombre de cellule
+
+		// Pour l'instant tout les cercles se placent au même endroit et ont tous le même rayon (par la suite on pourra choisir directement su la fenêtre)
+		e.horizontalCenter = 25;
+		e.verticalCenter = 50;
+		e.rayon = 20;
+		
+		std::vector<Cellule>* g = e.g; // Récupère les données nécessaire dans l'objet EnvData
+		int horizontalCenter = e.horizontalCenter;
+		int verticalCenter = e.verticalCenter;
+		int rayon = e.rayon;
+		
 		// Coordonnées du centre du cercle (ramenée au centre d'une des cellules de la grille)
 		int xCenter = (horizontalCenter * this->dimCellule) + (this->dimCellule / 2); 
 		int yCenter = (verticalCenter * this->dimCellule) + (this->dimCellule / 2);
@@ -81,15 +95,12 @@ public:
 		}
 	}
 
-	std::vector<Cellule>* initialiserGrille(){
-		std::vector<Cellule> *g = new std::vector<Cellule>(this->nLigne * this->nColonne);
-		
+	void initialiserGrille(EnvData e){
+		e.g = new std::vector<Cellule>(this->nLigne * this->nColonne);
 		// Remplir la grille de cellule selon une certaine fonction
-		//fillSimpleGrid(g);
-		fillRandomGrid(g);
-		//fillGridWithCircle(g,25,50,20);
-		
-		return g;
+		//fillSimpleGrid(e);
+		//fillRandomGrid(e);
+		fillGridWithCircle(e);
 	}
 
     void draw(SDL_Renderer* renderer){
