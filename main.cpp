@@ -6,7 +6,7 @@
 
 #define FPS 30 // Nombre de frame entre 2 étapes d'évolution (ATTENTION : Ce n'est pas le nombre de frame par secondes, sauf si SECONDE_ENTRE_EVOLUTION = 1)
 
-#define SECONDE_ENTRE_EVOLUTION 0.05 // Nombre de seconde entre 2 étapes d'évolution (permet donc de modifier la vitesse d'évolution des cellules)
+#define SECONDE_ENTRE_EVOLUTION 0.02 // Nombre de seconde entre 2 étapes d'évolution (permet donc de modifier la vitesse d'évolution des cellules)
 // !!! En théorie seulement, en réalité ce n'est pas exactement cette valeur !!!
 
 
@@ -43,8 +43,8 @@ SDL_Window* createWindow(const char* window_name){
 
 int main(){
 
-	const short nLigne = 56;
-	const short nColonne = 100;
+	const short nLigne = 224;
+	const short nColonne = 400;
 	const short dimCellule = std::min(AREA_WIDTH / nColonne, AREA_HEIGHT / nLigne); // On définit au mieux la dimension des cellules
 	
     SDL_Window *window = createWindow("Lenia Simulation");
@@ -111,13 +111,10 @@ int main(){
 		        	SDL_GetMouseState(xClick,yClick);
 		        	if (buttons->isClicked(*xClick,*yClick)){
 		        		int indCase = buttons->getIndCase(*xClick,*yClick);	
-		        		std::cout << "Indice = "<< indCase << "\n";
 						buttons->execute(indCase,e); // Exécute la fonction dans le tableau de fonction de BlockButton, à l'indice indCase
 		        	}
 		    }
 		}
-
-		std::cout << "Marche 1\n";
 		
 		if (!(*isPaused)){
 			// Effacer le renderer (met la couleur de fond en blanc)

@@ -47,6 +47,7 @@ public:
 			c.value = (1./(this->nLigne - 1) * numLigne) / 2 + (1./(this->nColonne - 1) * numColonne) / 2;
 			g->at(i) = c;
 		}
+		this->grille = g;
 	}
 	
 	void fillRandomGrid(EnvData e){
@@ -58,6 +59,7 @@ public:
 			c.value = (rand() % 100) / 100.;  ; // Valeur aléatoire pour les cellules
 			g->at(i) = c;
 		}
+		this->grille = g;
 	}
 	
 	void fillGridWithCircle(EnvData e){ // Remplit la grille avec un cercle (centre + rayon). Le rayon est un nombre de cellule
@@ -93,6 +95,7 @@ public:
 				g->at(i) = c;
 			}
 		}
+		this->grille = g;
 	}
 
 	void initialiserGrille(EnvData e){
